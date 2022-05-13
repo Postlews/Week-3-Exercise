@@ -146,6 +146,13 @@ pedestrian %>%
   facet_wrap(~TrajID,nrow=2) +
   labs(title="Visual comparison of the 6 trajectories")
 
+# Task 6 - Calculate similarity
+
+
+help(package = "SimilarityMeasures")
+
+
+
 
 
 
