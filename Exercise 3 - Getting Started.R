@@ -34,12 +34,82 @@ caro <- caro %>%
     nPlus3  = sqrt((E-lead(E,3))^2+(N-lead(N,3))^2)
   )
 
+# Test github connection, push
+
+#Task 2 - Specify and Apply Threshold "d"
+
+## Attempting to calculate the mean distance for the rows
 
 caro <- caro %>%
   rowwise() %>%
   mutate(
     stepMean = mean(c(nMinus3, nMinus2, nMinus1,nPlus1,nPlus2,nPlus3))
   ) %>% ungroup()
+
+
+#Exploring 
+
+ggplot(data=caro, mapping = aes(x=stepMean))+ geom_histogram(binwidth = 0.5)
+
+
+
+summary(caro)
+
+
+# Stepmean of 6.951
+
+# Our threshold for differentiating between stops and moves
+
+caro <- caro %>% 
+  ungroup() %>%
+  mutate(static = stepMean < mean(stepMean, na.rm = TRUE))
+
+#Task 3 - Visualizing segmented trajectories 
+
+caro %>% 
+  ggplot(aes(y=N, x=E) ) +
+  geom_path()+ 
+  geom_point(aes(colour=static)) + 
+  coord_equal() 
+
+#Beautiful 
+
+
+# Task 4 - Segment-based analysis
+
+
+rle_id <- function(vec){
+  x <- rle(vec)$lengths
+  as.factor(rep(seq_along(x), times=x))
+}
+
+#assigning IDs to subtrajectories
+
+caro <- caro %>%
+  mutate(segment_id = rle_id(static))
+
+
+summary(caro)
+
+caro %>%
+  group_by(segment_id) %>%
+  ggplot(aes(y=N, x=E,col=segment_id ) ) +
+  geom_path()+ geom_point() + coord_equal() + 
+  labs(title=" visualizing moving segments")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
