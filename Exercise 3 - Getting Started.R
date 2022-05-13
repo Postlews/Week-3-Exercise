@@ -155,6 +155,3 @@ help(package = "SimilarityMeasures")
 
 
 
-
-
-
