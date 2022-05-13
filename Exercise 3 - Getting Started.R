@@ -1,4 +1,4 @@
-#Loading any and all packages I may need
+##Loading any and all packages I may need
 
 library(readr)
 library(dplyr)    
@@ -6,23 +6,21 @@ library(ggplot2)
 library(sf)
 library(terra)
 library(lubridate)
-install.packages("SimilarityMeasures")
 library(SimilarityMeasures)
 library(tidyr)
-install.packages("ggpubr")
 library(ggpubr)
 
-#Importing dataset
+##Importing dataset
 
 caro60 <- read.csv("C:/Users/Steele/Desktop/PatternTrends/Week 3/Exercise 3/Exercise 3 - First draft/caro60.txt")
 
 caro <- caro60
 
-# Onto task 1
+## Onto task 1
 
 # TASK 1 - Segmentation Station
 
-#Since our sampling window is only 1 minute, and we need to use a temporal window of 6 minutes, our window size is will have different positions. 3 minutes before, 2 minutes before, 3 minutes after, etc.
+##Since our sampling window is only 1 minute, and we need to use a temporal window of 6 minutes, our window size is will have different positions. 3 minutes before, 2 minutes before, 3 minutes after, etc.
 
 caro <- caro %>%
   mutate(
@@ -34,7 +32,7 @@ caro <- caro %>%
     nPlus3  = sqrt((E-lead(E,3))^2+(N-lead(N,3))^2)
   )
 
-# Test github connection, push
+## Test github connection, push
 
 #Task 2 - Specify and Apply Threshold "d"
 
@@ -47,7 +45,7 @@ caro <- caro %>%
   ) %>% ungroup()
 
 
-#Exploring 
+##Exploring 
 
 ggplot(data=caro, mapping = aes(x=stepMean))+ geom_histogram(binwidth = 0.5)
 
@@ -56,9 +54,9 @@ ggplot(data=caro, mapping = aes(x=stepMean))+ geom_histogram(binwidth = 0.5)
 summary(caro)
 
 
-# Stepmean of 6.951
+## Stepmean of 6.951
 
-# Our threshold for differentiating between stops and moves
+## Our threshold for differentiating between stops and moves
 
 caro <- caro %>% 
   ungroup() %>%
@@ -72,7 +70,7 @@ caro %>%
   geom_point(aes(colour=static)) + 
   coord_equal() 
 
-#Beautiful 
+###Beautiful 
 
 
 # Task 4 - Segment-based analysis
@@ -83,7 +81,7 @@ rle_id <- function(vec){
   as.factor(rep(seq_along(x), times=x))
 }
 
-#assigning IDs to subtrajectories
+## assigning IDs to subtrajectories
 
 caro <- caro %>%
   mutate(segment_id = rle_id(static))
@@ -99,13 +97,21 @@ caro %>%
 
 
 
+## Removing segments that are less then 5 minutes
+
+caro5 <- caro
+
+caro <- caro %>%
+  group_by(segment_id) %>%
+  mutate(
+    segm_duration = as.integer(difftime(max(DatetimeUTC),min(DatetimeUTC), units="mins"))
+  ) %>% 
+  filter(segm_duration > 5)
 
 
-
-
-
-
-
+caro5  %>%
+  ggplot(aes(y=N, x=E,col=segment_id)) +
+  geom_path()+ geom_point() + coord_equal()
 
 
 
